@@ -1,0 +1,285 @@
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Air Pollution Challenge</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;padding:18px;min-height:100vh;
+ display:flex;align-items:center;justify-content:center;
+ background:var(--bg);color:var(--text);
+ font-family:Arial,sans-serif;
+}
+body.cyber{
+ --bg:radial-gradient(circle at top,#123b5b,#050b18 70%);
+ --panel:#0b1930;--text:#effaff;--muted:#9ab5c9;
+ --accent:#48e4ff;--border:#24617b;
+}
+body.redline{
+ --bg:radial-gradient(circle at top,#581b25,#09090d 70%);
+ --panel:#171116;--text:#fff3f3;--muted:#c2a6aa;
+ --accent:#ff405d;--border:#762c3c;
+}
+body.glass{
+ --bg:radial-gradient(circle at top,#56317a,#100b20 70%);
+ --panel:#211638;--text:#fbf5ff;--muted:#c0b2d4;
+ --accent:#c5a2ff;--border:#755b91;
+}
+.container{
+ width:100%;max-width:680px;background:var(--panel);
+ border:1px solid var(--border);border-radius:22px;
+ padding:27px;box-shadow:0 15px 50px #0007;
+}
+.logo{color:var(--accent);letter-spacing:4px;font-size:13px;font-weight:bold}
+h1{font-size:36px;margin:25px 0 10px}
+p{color:var(--muted);line-height:1.6}
+button{
+ cursor:pointer;color:var(--text);background:transparent;
+ border:1px solid var(--border);border-radius:12px;
+ padding:14px;font-size:14px;font-weight:bold;
+}
+button:disabled{opacity:.4;cursor:not-allowed}
+.primary{background:var(--accent);color:#101020;border:0;width:100%;margin-top:15px}
+.levels{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:25px}
+.levels button{text-align:left;min-height:110px}
+.levels strong{display:block;font-size:18px;margin:12px 0}
+.levels small{color:var(--muted)}
+.hidden{display:none}
+.topline{display:flex;justify-content:space-between;color:var(--muted);font-size:12px;margin:20px 0 10px}
+.progress{height:7px;background:#ffffff20;border-radius:20px;overflow:hidden}
+.progress div{height:100%;background:var(--accent);width:0%;transition:.3s}
+.question{font-size:21px;line-height:1.4;margin:25px 0}
+.options{display:grid;gap:10px}
+.option{text-align:left;line-height:1.5;width:100%}
+.option.correct{border-color:#45e69b;background:#45e69b22}
+.option.wrong{border-color:#ff6688;background:#ff668822}
+.feedback{margin-top:15px;min-height:22px;font-weight:bold}
+.actions{display:flex;gap:10px;margin-top:15px}
+.actions button{flex:1}
+.score{font-size:65px;color:var(--accent);font-weight:bold}
+footer{text-align:center;color:var(--muted);font-size:11px;margin-top:25px}
+@media(max-width:450px){
+ h1{font-size:30px}
+ .container{padding:20px}
+ .actions{flex-direction:column}
+}
+</style>
+</head>
+
+<body class="cyber">
+<div class="container">
+
+<div class="logo" id="logo">AIR//WAVE</div>
+
+<section id="home">
+ <h1>Test your atmosphere IQ.</h1>
+ <p id="intro">Enter the challenge. Choose your level and test your knowledge about air pollution.</p>
+ <div class="levels">
+  <button onclick="start('hard')">
+   LEVEL 01
+   <strong>HARD MODE</strong>
+   <small>6 challenging questions</small>
+  </button>
+  <button onclick="start('easy')">
+   LEVEL 02
+   <strong>EASY MODE</strong>
+   <small>6 quick questions</small>
+  </button>
+ </div>
+</section>
+
+<section id="quiz" class="hidden">
+ <div class="topline">
+  <span id="level"></span>
+  <span id="counter"></span>
+ </div>
+ <div class="progress"><div id="bar"></div></div>
+ <div class="question" id="question"></div>
+ <div class="options" id="options"></div>
+ <div class="feedback" id="feedback"></div>
+ <div class="actions">
+  <button onclick="home()">EXIT</button>
+  <button class="primary" id="next" onclick="next()" disabled>NEXT →</button>
+ </div>
+</section>
+
+<section id="result" class="hidden">
+ <p>CHALLENGE COMPLETE</p>
+ <h1 id="resultTitle">Well done!</h1>
+ <div class="score" id="score">0/6</div>
+ <p id="resultText"></p>
+ <button class="primary" onclick="home()">PLAY AGAIN</button>
+</section>
+
+<footer>THINK CLEAN. BREATHE CLEAN. PROTECT OUR PLANET.</footer>
+</div>
+
+<script>
+const sites = {
+1:{
+ name:"AIR//WAVE",
+ intro:"Enter the atmosphere. Beat the challenge.",
+ theme:"cyber",
+ hard:[
+ ["About how much CO is annually produced and emitted globally?",["1 billion tonnes","3 billion tonnes","6 billion tonnes","10 billion tonnes"],1],
+ ["Most important chlorofluorocarbon mentioned is:",["Dichlorodifluoromethane","Trichlorofluoromethane (Freon)","Tetrafluoromethane","Chloroform"],0],
+ ["CFCs increase in concentration in the stratosphere because:",["They degrade very quickly","They accumulate and do not degrade for a long time","They are washed out by rain","They are absorbed by plants"],1],
+ ["Methane in the stratosphere increases water vapour there and thus:",["Reduces greenhouse effect","Intensifies greenhouse effect and raises Earth's surface temperature","Causes ozone formation","Causes cooling"],1],
+ ["Thermal power plants, crude oil refineries and automobiles together account for what percentage of human SO₂ pollution?",["25%","30%","50%","75%"],2],
+ ["Nitrogen oxide released from supersonic jet aircraft reduces ozone concentration by:",["10%","20%","30%","50%"],0]
+ ],
+ easy:[
+ ["Major source of production of Carbon Monoxide (CO) is:",["Complete burning of fossil fuels","Incomplete burning of fossil fuels like coal, petroleum and wood charcoal","Photosynthesis","Volcanic eruption only"],1],
+ ["CO reduces the O₂ carrying capacity of haemoglobin by forming:",["Methaemoglobin","Carboxyhaemoglobin","Oxyhaemoglobin","Cyanhaemoglobin"],1],
+ ["CFCs are released from all EXCEPT:",["Aerosol spray cans","Refrigerators","Air conditioners","Solar panels"],3],
+ ["Source of methane in the atmosphere is:",["Burning of biomass and fossil fuels","Burning of plastics only","Ocean currents","Soil erosion"],0],
+ ["After CO, SO₂ is the:",["Most important contributor of air pollution","Second most important contributor of air pollution","Least important contributor","Only natural pollutant"],1],
+ ["SO₂ through reactions with O₂ and water forms:",["Nitric acid","Sulphuric acid (H₂SO₄)","Hydrochloric acid","Carbonic acid"],1]
+ ]
+},
+
+2:{
+ name:"REDLINE",
+ intro:"Enter the danger zone. Can you beat the air pollution challenge?",
+ theme:"redline",
+ hard:[
+ ["Which pollutant acts as an allergic agent and causes asthma and respiratory tract irritation?",["CO₂","SO₂","Ozone","Lead"],2],
+ ["Oxides of nitrogen cause:",["Only asthma","Asthma, impaired respiratory enzyme functions and bronchiolitis obliterans","Only skin cancer","Only diarrhoea"],1],
+ ["Photochemical oxidants cause all EXCEPT:",["Impaired visual activity","Chest discomfort","Reduced pulmonary action","Loss of IQ"],3],
+ ["According to the health problems table, heart problems are caused by:",["Particulates, hydrocarbons, SO₂","CO, particulates, SO₂, ozone and nitrogen oxides","Lead only","Benzene only"],1],
+ ["Particulates absorb carcinogenic PAHs and:",["Nitro-PAHs","Carbon monoxide","Ozone","Ammonia"],0],
+ ["Mercury vapour causes:",["Insomnia, tremor and gingivitis","Only fever","Only diarrhoea","Only blindness"],0]
+ ],
+ easy:[
+ ["Which is a DELAYED effect of air pollution?",["Suffocation","Chronic bronchitis, lung cancer, asthma and emphysema","Sneezing only","Eye watering only"],1],
+ ["Sulphur dioxide impairs enzyme function in the:",["Digestive system","Respiratory system","Nervous system","Excretory system"],1],
+ ["Gaseous hydrocarbons and VOCs can cause lung cancer by:",["Blocking the nose","Changing the structure of DNA","Increasing blood pressure","Damaging the liver"],1],
+ ["Suspended Particulate Matter can:",["Only cause skin allergy","Cause lung irritation, impaired vision and reduced lung elasticity","Increase IQ","Cure asthma"],1],
+ ["High lead levels in children can cause loss of:",["Height","IQ","Appetite only","Hair only"],1],
+ ["As a toxicant, lead accumulates in:",["Liver","Bones","Lungs only","Skin"],1]
+ ]
+},
+
+3:{
+ name:"AETHER",
+ intro:"Think sharp. Protect the air we share.",
+ theme:"glass",
+ hard:[
+ ["CO₂ can impair all EXCEPT:",["Reflexes","Judgement","Vision","Hearing"],3],
+ ["Carbon dioxide is fatal above what concentration according to the study material?",["100 ppm","500 ppm","1000 ppm","5000 ppm"],3],
+ ["Which of the following causes plasmolysis and collapse of epidermal cells of leaves, resulting in glazing of leaves?",["Ammonia","Hydrogen chloride","Sulphur dioxide","Methane"],1],
+ ["Which of the following is a secondary air pollutant?",["Carbon monoxide","Sulphur dioxide","Photochemical smog","Carbon dioxide"],2],
+ ["Ozone can cause:",["Airway inflammation, shortness of breath, wheezing, chest pain and respiratory diseases","Only headache","Only skin rash","Only hearing loss"],0],
+ ["Nitrogen oxide released from supersonic jet aircraft reduces ozone concentration by:",["10%","20%","30%","50%"],0]
+ ],
+ easy:[
+ ["An immediate effect of air pollution on the respiratory system may result in death by:",["Heart attack","Suffocation","Kidney failure","Liver failure"],1],
+ ["CO₂ in the atmosphere is increasing due to:",["Only burning of fossil fuels","Only deforestation","Fossil fuel burning and shrinking forests","Increase in rainfall"],2],
+ ["The Central Pollution Control Board maintains:",["Pollution per square kilometre population","Records of atmospheric pollution levels","Only air pollution levels","Health records of residents"],1],
+ ["Which gas is a major contributor to acid rain?",["Oxygen","Sulphur dioxide","Hydrogen","Helium"],1],
+ ["Which atmospheric layer contains the ozone layer?",["Troposphere","Stratosphere","Mesosphere","Thermosphere"],1],
+ ["Which of the following is a major greenhouse gas?",["Carbon dioxide","Nitrogen","Argon","Helium"],0]
+ ]
+}
+};
+
+let current=[],index=0,score=0,locked=false;
+
+const params=new URLSearchParams(location.search);
+let siteNumber=Number(params.get("site"))||1;
+if(!sites[siteNumber])siteNumber=1;
+
+const site=sites[siteNumber];
+document.body.className=site.theme;
+document.getElementById("logo").textContent=site.name;
+document.getElementById("intro").textContent=site.intro;
+document.title=site.name+" | Air Pollution Quiz";
+
+function show(id){
+ ["home","quiz","result"].forEach(x=>{
+  document.getElementById(x).classList.toggle("hidden",x!==id);
+ });
+}
+
+function start(level){
+ current=site[level];
+ index=0;
+ score=0;
+ document.getElementById("level").textContent=
+ level==="hard"?"LEVEL 01 • HARD":"LEVEL 02 • EASY";
+ show("quiz");
+ render();
+}
+
+function render(){
+ locked=false;
+ const q=current[index];
+ document.getElementById("counter").textContent=
+ "QUESTION "+(index+1)+" / 6";
+ document.getElementById("bar").style.width=(index/6*100)+"%";
+ document.getElementById("question").textContent=q[0];
+ document.getElementById("feedback").textContent="";
+ document.getElementById("next").disabled=true;
+ document.getElementById("next").textContent=
+ index===5?"SEE RESULT →":"NEXT →";
+
+ const area=document.getElementById("options");
+ area.innerHTML="";
+ ["A","B","C","D"].forEach((letter,i)=>{
+  const btn=document.createElement("button");
+  btn.className="option";
+  btn.textContent=letter+". "+q[1][i];
+  btn.onclick=()=>choose(i,btn);
+  area.appendChild(btn);
+ });
+}
+
+function choose(choice,button){
+ if(locked)return;
+ locked=true;
+ const correct=current[index][2];
+ const buttons=document.querySelectorAll(".option");
+
+ buttons.forEach((b,i)=>{
+  b.disabled=true;
+  if(i===correct)b.classList.add("correct");
+ });
+
+ if(choice===correct){
+  score++;
+  document.getElementById("feedback").textContent="✓ CORRECT!";
+  document.getElementById("feedback").style.color="#45e69b";
+ }else{
+  button.classList.add("wrong");
+  document.getElementById("feedback").textContent=
+  "✕ Incorrect. Correct answer: "+["A","B","C","D"][correct];
+  document.getElementById("feedback").style.color="#ff6688";
+ }
+
+ document.getElementById("bar").style.width=((index+1)/6*100)+"%";
+ document.getElementById("next").disabled=false;
+}
+
+function next(){
+ if(!locked)return;
+ if(index<5){
+  index++;
+  render();
+ }else{
+  const percent=Math.round(score/6*100);
+  document.getElementById("score").textContent=score+"/6";
+  document.getElementById("resultTitle").textContent=
+   percent>=80?"EXCELLENT!":percent>=50?"GOOD JOB!":"KEEP PRACTISING!";
+  document.getElementById("resultText").textContent=
+   "You scored "+percent+"%. You answered "+score+" out of 6 correctly.";
+  show("result");
+ }
+}
+
+function home(){show("home");}
+</script>
+</body>
+</html>
